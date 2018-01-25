@@ -189,19 +189,6 @@ class ContractController extends Controller
             ->where('id', $iid)
             ->update(['contractGenerated' => $date]);
 
-        /*
-         * Used to update the contract, transforming it from markdown to rich text
-         * To use it again, uncomment it and the checkbox "replace" in the contractVisualize view
-         */
-            if ($request->replace)
-            {
-                DB::table('contracts')
-                    ->join('companies', 'contracts_id', '=', 'contracts.id')
-                    ->join('internships', 'companies_id', '=', 'companies.id')
-                    ->where('internships.id', $iid)
-                    ->update(['contractText' => $request->contractText]);
-            }
-
         if ($request->pdf == 'pdf')
         {
             $pdf = App::make('dompdf.wrapper');             // Creates an "empty" pdf file

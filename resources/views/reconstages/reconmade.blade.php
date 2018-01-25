@@ -41,9 +41,5 @@
         </tr>
     @endforeach
     </table>
-<<<<<<< Updated upstream
-    <a href="{{'/'}}"><button class="btn btn-primary">Retour à la page d'accueil</button></a>
-=======
     <a href="/"><button class="btn btn-default">Retour à la page d'accueil</button></a>
->>>>>>> Stashed changes
 @stop

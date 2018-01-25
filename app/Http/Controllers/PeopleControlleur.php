@@ -125,7 +125,7 @@ class PeopleControlleur extends Controller
                 'endDate',
                 'companyName',
                 'grossSalary',
-                'mc.initials',
+                'mc.initials as mcini',
                 'previous_id',
                 'internshipDescription',
                 'admresp.firstname as arespfirstname',
