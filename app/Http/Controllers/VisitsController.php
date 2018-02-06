@@ -177,7 +177,6 @@ class VisitsController extends Controller
                  * 3. Effectuée
                  *  */
                 $visitstate = DB::table('visitsstates')
-                    ->where("id", "<", 3)
                     ->get();
 
                 /*

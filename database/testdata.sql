@@ -222,7 +222,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `visitsstates` WRITE;
 /*!40000 ALTER TABLE `visitsstates` DISABLE KEYS */;
-INSERT INTO `visitsstates` VALUES (1,'Non défini'),(2,'En préparation'),(3,'Confirmée'),(4,'Effectuée');
+INSERT INTO `visitsstates` VALUES (1,'En préparation'),(2,'Confirmée'),(3,'Effectuée');
 /*!40000 ALTER TABLE `visitsstates` ENABLE KEYS */;
 UNLOCK TABLES;
 
