@@ -17,11 +17,11 @@
         </tr>
         <tr>
             <td class="col-md-2">Responsable administratif</td>
-            <td>{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</td>
+            <td><a href="/listPeople/{{$iship->arespid}}/info">{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</a></td>
         </tr>
         <tr>
             <td class="col-md-2">Responsable</td>
-            <td>{{ $iship->irespfirstname }} {{ $iship->iresplastname }}</td>
+            <td><a href="/listPeople/{{$iship->irespid}}/info">{{ $iship->irespfirstname }} {{ $iship->iresplastname }}</a></td>
         </tr>
         <tr>
             <td class="col-md-2">Maître de classe</td>
