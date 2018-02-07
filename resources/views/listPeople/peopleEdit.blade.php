@@ -45,15 +45,7 @@
         <br>
 
         <div class="margin10 row">
-            <!--
-            
-                quel sous-vue ?
-
-                https://laravel.com/docs/4.2/templates#blade-templating
-                
-                @include('view.name', array('some'=>'data'))
-        
-            -->
+            (à compléter)
         </div>
 
         <br>
@@ -113,15 +105,7 @@
         <br>
 
         <div class="margin10 row">
-            <!--
-            
-                quel sous-vue ?
-
-                https://laravel.com/docs/4.2/templates#blade-templating
-
-                @include('view.name', array('some'=>'data'))
-        
-            -->
+            (à compléter)
         </div>
 
     </div>

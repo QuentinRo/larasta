@@ -74,42 +74,38 @@ class InternshipsController extends Controller
      */
     private function filteredInternships(InternshipFilter $ifilter)
     {
-        //$states = $ifilter->getStateFilter();
-        
+        $states = $ifilter->getStateFilter();
         // build list of ids to select by internship state
-        /*
         foreach ($states as $state)
             if ($state->checked)
                 $idlist[] = $state->id;
 
         if (isset($idlist))
-        {
             $iships = DB::table('internships')
-            ->join('companies', 'companies_id', '=', 'companies.id')
-            ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
-            ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
-            ->join('persons as student', 'intern_id', '=', 'student.id')
-            ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
-            ->join('flocks', 'student.flock_id', '=', 'flocks.id')
-            ->join('persons as mc', 'classMaster_id', '=', 'mc.id')
-            ->select(
-                'internships.id',
-                'beginDate',
-                'endDate',
-                'companyName',
-                'admresp.firstname as arespfirstname',
-                'admresp.lastname as aresplastname',
-                'intresp.firstname as irespfirstname',
-                'intresp.lastname as iresplastname',
-                'student.firstname as studentfirstname',
-                'student.lastname as studentlastname',
-                'mc.intranetUserId as mcid',
-                'mc.initials as mcini',
-                'contractstate_id',
-                'stateDescription')
-            ->get();
-        }
-            
+                ->join('companies', 'companies_id', '=', 'companies.id')
+                ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
+                ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
+                ->join('persons as student', 'intern_id', '=', 'student.id')
+                ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
+                ->join('flocks', 'student.flock_id', '=', 'flocks.id')
+                ->join('persons as mc', 'classMaster_id', '=', 'mc.id')
+                ->select(
+                    'internships.id',
+                    'beginDate',
+                    'endDate',
+                    'companyName',
+                    'admresp.firstname as arespfirstname',
+                    'admresp.lastname as aresplastname',
+                    'intresp.firstname as irespfirstname',
+                    'intresp.lastname as iresplastname',
+                    'student.firstname as studentfirstname',
+                    'student.lastname as studentlastname',
+                    'mc.intranetUserId as mcid',
+                    'mc.initials as mcini',
+                    'contractstate_id',
+                    'stateDescription')
+                ->whereIn('contractstate_id', $idlist)
+                ->get();
         else
             $iships = array();
 
@@ -133,35 +129,8 @@ class InternshipsController extends Controller
                     $finallist[] = $iship;
         } else
             $finallist = $iships;
-        */
 
-        $iships = DB::table('internships')
-            ->join('companies', 'companies_id', '=', 'companies.id')
-            ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
-            ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
-            ->join('persons as student', 'intern_id', '=', 'student.id')
-            ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
-            ->join('flocks', 'student.flock_id', '=', 'flocks.id')
-            ->join('persons as mc', 'classMaster_id', '=', 'mc.id')
-            ->select(
-                'internships.id',
-                'beginDate',
-                'endDate',
-                'companyName',
-                'admresp.firstname as arespfirstname',
-                'admresp.lastname as aresplastname',
-                'intresp.firstname as irespfirstname',
-                'intresp.lastname as iresplastname',
-                'student.firstname as studentfirstname',
-                'student.lastname as studentlastname',
-                'mc.intranetUserId as mcid',
-                'mc.initials as mcini',
-                'contractstate_id',
-                'stateDescription')
-            ->get();
-
-        //return view('internships/internships')->with('iships', $finallist)->with('filter', $ifilter);
-        return view('internships/internships')->with(['iships' => $iships]);
+        return view('internships/internships')->with('iships', $finallist)->with('filter', $ifilter);
     }
 
     /**
@@ -243,10 +212,8 @@ class InternshipsController extends Controller
                 'internshipDescription',
                 'admresp.firstname as arespfirstname',
                 'admresp.lastname as aresplastname',
-                'admresp.id as arespid',
                 'intresp.firstname as irespfirstname',
                 'intresp.lastname as iresplastname',
-                'intresp.id as irespid',
                 'student.firstname as studentfirstname',
                 'student.lastname as studentlastname',
                 'contractstate_id',

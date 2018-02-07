@@ -1,6 +1,6 @@
 {{-- Subview that displays a list of internships --}}
 {{-- Usage:         @include ('internships.internshipslist',['iships' => $your_array_of_internships])  --}}
-
+@if (count($iships) > 0)
     <table class="table table-bordered table-hover text-left larastable">
         <thead>
         <tr>
@@ -27,4 +27,6 @@
         @endforeach
         </tbody>
     </table>
-
+@else
+    <div class="alert-info">Aucun stage ne correspond à ce filtre</div>
+@endif
