@@ -59,23 +59,6 @@
 
 /* Personale elements */
 
-.margin10
-{
-    height: 10px;
-    background: transparent;
-}
-
-.margin20 {
-    height: 20px;
-    background: transparent;
-}
-
-.margin30
-{
-    height: 30px;
-    background: transparent;
-}
-
 .divider{
     height: 1px;
     background: lightgray;

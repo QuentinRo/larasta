@@ -15,6 +15,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contactinfos;
 use Illuminate\Http\Request;
 use App\Persons;
 use CPNVEnvironment\Environment;
@@ -81,6 +82,50 @@ class PeopleControlleur extends Controller
     }
 
     /**
+     * Delete a specific contact
+     *
+     * @param $request
+     */
+    public function deleteContact(Request $request)
+    {
+        $delid = $request->input('delid');
+        $personid = $request->input('peopleid');
+        Contactinfos::destroy($delid);
+        return $this->info($personid);
+    }
+
+    /**
+     * Add a contact to a person
+     *
+     * @param $request
+     */
+    public function addContact(Request $request)
+    {
+        $personid = $request->input('peopleid');
+        $newcontact = new Contactinfos();
+        $newcontact->contacttypes_id = $request->input('contacttype');
+        $newcontact->persons_id = $personid;
+        $newcontact->value = $request->input('newcontact');
+        $newcontact->save();
+        return $this->info($personid);
+    }
+
+    /**
+     * Change a person's company
+     *
+     * @param $request
+     */
+    public function changeCompany(Request $request)
+    {
+        $personid = $request->input('peopleid');
+        $newcompany = $request->input('dpdCompany');
+        $person = Persons::find($personid);
+        $person->company_id = $newcompany;
+        $person->save();
+        return $this->info($personid);
+    }
+
+    /**
      * Get all info for people
      *
      * @param $id
@@ -92,7 +137,8 @@ class PeopleControlleur extends Controller
 
         // Read Person from DB
         $person = DB::table('persons')
-            ->select('persons.id','firstname','lastname','role','obsolete','location_id')
+            ->select('persons.id','firstname','lastname','role','obsolete','persons.location_id','company_id', 'companyName')
+            ->leftJoin('companies','persons.company_id', '=', 'companies.id')
             ->where('persons.id','=',$id)
             ->get()->first();
 
@@ -106,39 +152,87 @@ class PeopleControlleur extends Controller
         // Read Contact info from DB
         $contacts = DB::table('contactinfos')
             ->join('contacttypes', 'contacttypes.id', '=', 'contactinfos.contacttypes_id')
-            ->select('contactTypeDescription','value')
+            ->select('contactinfos.id','icon','value')
             ->where('persons_id','=',$id)
             ->get();
 
-        // Read stages info from DB
-        $iship = DB::table('internships')
-            ->join('companies', 'companies_id', '=', 'companies.id')
-            ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
-            ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
-            ->join('persons as student', 'intern_id', '=', 'student.id')
-            ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
-            ->join('flocks', 'student.flock_id', '=', 'flocks.id')
-            ->join('persons as mc', 'flocks.classMaster_id', '=', 'mc.id')
-            ->select(
-                'internships.id',
-                'beginDate',
-                'endDate',
-                'companyName',
-                'grossSalary',
-                'mc.initials as mcini',
-                'previous_id',
-                'internshipDescription',
-                'admresp.firstname as arespfirstname',
-                'admresp.lastname as aresplastname',
-                'intresp.firstname as irespfirstname',
-                'intresp.lastname as iresplastname',
-                'student.firstname as studentfirstname',
-                'student.lastname as studentlastname',
-                'contractstate_id',
-                'contractGenerated',
-                'stateDescription')
-            ->where('internships.intern_id','=', $id)
+        // Read Contact types from DB
+        $contacttypes = DB::table('contacttypes')
+            ->select('id','contactTypeDescription')
             ->get();
+
+        // Read Companies from DB
+        $companies = DB::table('companies')
+            ->select('id','companyName')
+            ->get();
+
+        // select the internships in which the person was involved, based on role
+        switch ($person->role)
+        {
+            case 0: // Student
+                $iship = DB::table('internships')
+                    ->join('companies', 'companies_id', '=', 'companies.id')
+                    ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
+                    ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
+                    ->join('persons as student', 'intern_id', '=', 'student.id')
+                    ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
+                    ->join('flocks', 'student.flock_id', '=', 'flocks.id')
+                    ->join('persons as mc', 'flocks.classMaster_id', '=', 'mc.id')
+                    ->select(
+                        'internships.id',
+                        'beginDate',
+                        'endDate',
+                        'companyName',
+                        'grossSalary',
+                        'mc.initials as mcini',
+                        'previous_id',
+                        'internshipDescription',
+                        'admresp.firstname as arespfirstname',
+                        'admresp.lastname as aresplastname',
+                        'intresp.firstname as irespfirstname',
+                        'intresp.lastname as iresplastname',
+                        'student.firstname as studentfirstname',
+                        'student.lastname as studentlastname',
+                        'contractstate_id',
+                        'contractGenerated',
+                        'stateDescription')
+                    ->where('internships.intern_id','=', $id)
+                    ->get();                break;
+            case 1: // teacher, TODO
+                break;
+
+            case 2: // company
+                $iship = DB::table('internships')
+                    ->join('companies', 'companies_id', '=', 'companies.id')
+                    ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
+                    ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
+                    ->join('persons as student', 'intern_id', '=', 'student.id')
+                    ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
+                    ->join('flocks', 'student.flock_id', '=', 'flocks.id')
+                    ->join('persons as mc', 'flocks.classMaster_id', '=', 'mc.id')
+                    ->select(
+                        'internships.id',
+                        'beginDate',
+                        'endDate',
+                        'companyName',
+                        'grossSalary',
+                        'mc.initials as mcini',
+                        'previous_id',
+                        'internshipDescription',
+                        'admresp.firstname as arespfirstname',
+                        'admresp.lastname as aresplastname',
+                        'intresp.firstname as irespfirstname',
+                        'intresp.lastname as iresplastname',
+                        'student.firstname as studentfirstname',
+                        'student.lastname as studentlastname',
+                        'contractstate_id',
+                        'contractGenerated',
+                        'stateDescription')
+                    ->where('admresp.id','=', $id)
+                    ->orWhere('admresp.id','=', $id)
+                    ->get();
+                break;
+        }
 
         // return all values in view
         return view('listPeople/peopleEdit')->with(
@@ -147,7 +241,9 @@ class PeopleControlleur extends Controller
                 'adress' => $adress,
                 'contacts' => $contacts,
                 'iships' => $iship,
-                'user' => $user
+                'user' => $user,
+                'contacttypes' => $contacttypes,
+                'companies' => $companies
             ]
         );
     }

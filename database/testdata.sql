@@ -51,7 +51,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `contacttypes` WRITE;
 /*!40000 ALTER TABLE `contacttypes` DISABLE KEYS */;
-INSERT INTO `contacttypes` VALUES (1,'Email'),(2,'Tel Fixe'),(3,'Tel Portable');
+INSERT INTO `contacttypes` VALUES (1,'Email','envelope'),(2,'Tel Fixe','phone-alt'),(3,'Tel Portable','phone');
 /*!40000 ALTER TABLE `contacttypes` ENABLE KEYS */;
 UNLOCK TABLES;
 

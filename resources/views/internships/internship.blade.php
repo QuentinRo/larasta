@@ -15,7 +15,7 @@
             <td class="col-md-2">Description</td>
             <td>{{ $iship->internshipDescription }}</td>
         </tr>
-        <tr>
+        <tr class="clickable-row" data-href="/listPeople/{{ $iship->respid }}/info">
             <td class="col-md-2">Responsable administratif</td>
             <td>{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</td>
         </tr>
