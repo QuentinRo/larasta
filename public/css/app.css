@@ -11,6 +11,13 @@
   border: 2px solid darkgrey;
 }
 
+.larastable td,
+.larastable th {
+  padding-right: 5px;
+  padding-left: 5px;
+  text-align: left;
+}
+
 .btn-tile {
   border: solid 1px #fab;
   width: 150px;

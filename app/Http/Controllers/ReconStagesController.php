@@ -195,12 +195,10 @@ class ReconStagesController extends Controller
                         'endDate'                   => $endDate,
                         'responsible_id'            => $internship->responsible_id,
                         'admin_id'                  => $internship->admin_id,
-                        'intern_id'                 => $id,
                         'contractstate_id'          => '2',
                         'previous_id'               => $internship->id,
                         'internshipDescription'     => $internship->internshipDescription,
-                        'grossSalary'               => $salary,
-                        'contractGenerated'         => null,
+                        'grossSalary'               => $salary
                     ];
                     DB::table('internships')->insert($insert);
                 }
