@@ -6,7 +6,7 @@
 @extends ('layout')
 
 @section ('page_specific_css')
-    <link rel="stylesheet" type="text/css" href="/css/documents.css"></script>
+    <link rel="stylesheet" type="text/css" href="/css/documents.css">
 @stop
 
 @section ('content')
@@ -18,6 +18,7 @@
                 <tr>
                     <th>Entreprise</th>
                     <th>Début</th>
+                    <th>Fin</th>
                     <th>Responsable administratif</th>
                     <th>Responsable</th>
                     <th>Stagiaire</th>
@@ -29,22 +30,23 @@
             
             <tbody>
                 @foreach ($internships as $internship)
-                    <tr>
-                        <td class="{{ $internship->companyName }}">{{ $internship->companyName }}</td>
-                        <td class="{{ strftime("%b %g", strtotime($internship->beginDate)) }}">{{ strftime("%b %g", strtotime($internship->beginDate)) }}</td>
-                        <td class="{{ $internship->arespfirstname }}-{{ $internship->aresplastname }}">{{ $internship->arespfirstname }} {{ $internship->aresplastname }}</td>
-                        <td class="{{ $internship->irespfirstname }}-{{ $internship->iresplastname }}">{{ $internship->irespfirstname }} {{ $internship->iresplastname }}</td>
-                        <td class="{{ $internship->studentfirstname }}-{{ $internship->studentlastname }}">{{ $internship->studentfirstname }} {{ $internship->studentlastname }}</td>
-                        <td class="{{ $internship->grossSalary }}">{{ $internship->grossSalary }}</td>
-                        <td class="{{ $internship->stateDescription }}">{{ $internship->stateDescription }}</td>
-                        <td><input class="checkList" name="internshipId-{{ $internship->id }}" value="{{ $internship->id }}" type="checkbox"></td>
+                    <tr class="{{ strtolower($internship->student->initials) }}">
+                        <td><input name="company" value="{{ $internship->companie->id }}" type="hidden">{{ $internship->companie->companyName }}</td>
+                        <td>{{ $internship->beginDate->toFormattedDateString() }}</td>
+                        <td>{{ $internship->endDate->toFormattedDateString() }}</td>
+                        <td>{{ $internship->responsible->firstname }} {{ $internship->responsible->lastname }}</td>
+                        <td>{{ $internship->admin->firstname }} {{ $internship->admin->lastname }}</td>
+                        <td>{{ $internship->student->firstname }} {{ $internship->student->lastname }}</td>
+                        <td>{{ $internship->grossSalary }}</td>
+                        <td>{{ $internship->contractstate->stateDescription }}</td>
+                        <td><input class="checkList" name="internships[]" value="{{ $internship->id }}" type="checkbox"></td>
                     </tr>
                 @endforeach
             </tbody>
         
         </table>
-        <button id="reconduire" type="submit" class="btn btn-primary">Reconduire</button>
-        <div class="checkBox"><input type="checkbox" id="check" >Select All</input></div>
+        <button class="btn btn-primary" id="reconduire" type="submit">Reconduire</button>
+        <div class="checkBox"><input type="checkbox" id="check">Select All</div>
     </form>
     
 

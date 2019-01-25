@@ -8,208 +8,102 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Params;
+use Illuminate\Http\Request;
 use Faker\Provider\DateTime;
+use App\Contractstates;
+use App\Internship;
+use Carbon\Carbon;
+use App\Params;
+use App\Persons;
 
 class ReconStagesController extends Controller
 {
     // index, base route
     public function index()
     {
-        $internships = $this->getInternships();
-        return view('reconstages/reconstages')->with(
-            [
-                "internships" => $internships
-            ]
-        );
+        $states = $this->getContract(1);
+        $internships = Internship::all()->whereIn('contractstate_id', $states);
+
+        return view('reconstages.reconstages')->with(compact("internships"));
     }
 
-    //return to view reconmade
-    //public function displayStages()
-    //{
-    //    return view('reconstages/reconmade');
-    //}
-
-
-    //get value from db
-    public function getInternships(){
-        //get value from table Params to put them in SQL request
-        foreach(Params::all() as $param)
-        {
-            if($param->paramName == "reconductible")
-            {
-                $selectable[] = $param->paramValueInt;
+    /* Get the contract */
+    public function getContract($value) {
+        $contractStates = Contractstates::all();
+        foreach ($contractStates as $contract) {
+            if ($contract->openForRenewal === $value) {
+                $states[] = $contract->id;
             }
         }
-        
-        //requete de récuperation des données dans la base de donnée
-        $internships = DB::table('internships')
-        ->join('companies', 'companies_id', '=', 'companies.id')
-        ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
-        ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
-        ->join('persons as student', 'intern_id', '=', 'student.id')
-        ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
-        ->whereIn('contractstate_id', $selectable)
-        ->select(
-            'internships.id',
-            'beginDate',
-            'endDate',
-            'grossSalary',
-            'companyName',
-            'admresp.firstname as arespfirstname',
-            'admresp.lastname as aresplastname',
-            'intresp.firstname as irespfirstname',
-            'intresp.lastname as iresplastname',
-            'student.firstname as studentfirstname',
-            "student.id",
-            'student.lastname as studentlastname',
-            'contractstate_id',
-            'stateDescription',
-            'companies_id',
-            'responsible_id',
-            'admin_id',
-            'previous_id',
-            'internshipDescription',
-            'contracts_id')
-        ->get();
-
-        return $internships;
+        /* Contract states by openForRenewal */
+        return $states;
     }
 
-    //Send value to reconMade page with function displayRecon()
-    public function reconStages(Request $request){
+    /* Page called by reconstages.reconmade */
+    public function reconducted(Request $request) {
+        $i = 0;
+        $yearToSub = Carbon::createFromFormat('Y-m-d H:i:s', Params::getParamByName('internship1Start')->paramValueDate);
+        $yearToSub = $yearToSub->year;
+        /* 
+            Prendre mois stage en cours et check avec mois start db
+            comparer, si egale, changer, sinon, utiliser la date de la db
+            Attention à l'année dans la db est à 2000, changer pour la date de stage.
+        */
 
+        foreach($request->internships as $value) {
+            $i++;
+            $chosen[] = $value;
 
-        $keys = $request->all();
-        $ids = [];
+            /* Get value of chosen one */
+            $old = Internship::find($value);
+            $internship1Start = Carbon::createFromFormat('Y-m-d H:i:s', Params::getParamByName('internship1Start')->paramValueDate);
+            $internship1End = Carbon::createFromFormat('Y-m-d H:i:s', Params::getParamByName('internship1End')->paramValueDate);
+            $internship2Start = Carbon::createFromFormat('Y-m-d H:i:s', Params::getParamByName('internship2Start')->paramValueDate);
+            $internship2End = Carbon::createFromFormat('Y-m-d H:i:s', Params::getParamByName('internship2End')->paramValueDate);
 
-        foreach ($keys as $key => $value) {
-            if ($key != '_token') {
-                // Push id user in ids array
-                array_push($ids, $value);
+            $oldMonth = Carbon::createFromFormat('Y-m-d H:i:s', $old->beginDate);
+            if ($internship1Start->month == $oldMonth->month) {
+                /* Change year for the end */
+                $newInternshipDate1 = $internship2Start->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $newInternshipDate2 = $internship2End->subYear($yearToSub)->addYear(Carbon::now()->year + 1);
+                $salary = Params::getParamByName('internship2Salary')->paramValueInt;
+                
+            } else if ($internship2Start->month == $oldMonth->month) {
+                $newInternshipDate1 = $internship1Start->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $newInternshipDate2 = $internship1End->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $salary = Params::getParamByName('internship1Salary')->paramValueInt;
+            } else if ($oldMonth->month > 9){
+                /* Change year for the end */
+                $newInternshipDate1 = $internship2Start->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $newInternshipDate2 = $internship2End->subYear($yearToSub)->addYear(Carbon::now()->year + 1);
+                $salary = Params::getParamByName('internship2Salary')->paramValueInt;
+            } else {
+                $newInternshipDate1 = $internship1Start->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $newInternshipDate2 = $internship1End->subYear($yearToSub)->addYear(Carbon::now()->year);
+                $salary = Params::getParamByName('internship1Salary')->paramValueInt;
+                
             }
+            
+            /* Create new internship with old value */
+            $new = new Internship();
+            $new->companies_id = $old->companie->id;
+            $new->beginDate = $newInternshipDate1;
+            $new->endDate = $newInternshipDate2;
+            $new->responsible_id = $old->responsible->id;
+            $new->admin_id = $old->admin->id;
+            $new->intern_id = $old->student->id;
+            $new->contractstate_id = 2;
+            $new->previous_id = $value;
+            $new->internshipDescription = $old->internshipDescription;
+            $new->grossSalary = $salary;
+            $new->contractGenerated = 0;
+            $new->save();
         }
 
-        
-        $internships = $this->getInternships();
-        $new = $this->displayRecon($ids, $internships);
-
-        //return data to the view reconmade
-        return view('reconstages/reconmade')->with(
-            [
-                "internships" => $new
-            ]
-        );
-
-    }
-
-
-    //get values from input in an array
-    public function displayRecon($ids, $internships){
-        //define table
-        $beginDate = null;
-        $endDate = null;
-        $salary = 0;
-        //get date from the table param in the function getParamByName()
-        $paramBeginDate[] = $this->getParamByName('internship1Start')->paramValueDate;
-        $paramBeginDate[] = $this->getParamByName('internship2Start')->paramValueDate;
-        $paramEndDate[] = $this->getParamByName('internship1End')->paramValueDate;
-        $paramEndDate[] = $this->getParamByName('internship2End')->paramValueDate;
-        $newInternships = [];
-
-        //Get all internships
-        foreach ($internships as $internship) {
-            //Get id of internships
-            foreach($ids as $id){
-                //check if the ID are correct
-                if($internship->id==$id){
-
-                    // Switch for stage begin date
-                    switch (date('m',strtotime($internship->beginDate))){
-                        // february
-                        case date('m',strtotime($paramBeginDate[0])):
-                        // Construct the date (begin, end) for the reconductible internship
-                            $beginDate =  date('Y',strtotime($internship->beginDate)) . '-' . date('m-d',strtotime($paramBeginDate[1]));
-                            $endDate = date('Y',strtotime($beginDate)) + 1 . '-' . date('m-d',strtotime($paramEndDate[1]));
-                        break;
-
-                        // September
-                        case date('m',strtotime($paramBeginDate[1])):
-                        // Construct the date (begin, end) for the reconductible internship
-                            $beginDate =  date('Y',strtotime($internship->beginDate)) + 1 . '-' . date('m-d',strtotime($paramBeginDate[0]));
-                            $endDate = date('Y',strtotime($beginDate)) . '-' . date('m-d',strtotime($paramEndDate[0]));
-                        break;
-
-                        default:
-                        // do if the internship begin date is different of the 2 other case
-                        $monthDiff1 = date('m',strtotime($paramBeginDate[0]))-date('m',strtotime($internship->endDate));  
-                        $monthDiff2 = date('m',strtotime($paramBeginDate[1]))-date('m',strtotime($internship->endDate));
-                        //check the value of the date
-                        if($monthDiff1 < 0)
-                        {
-                            $monthDiff1 += 12;
-                        }
-                        if($monthDiff2 < 0)
-                        {
-                            $monthDiff2 += 12;
-                        }
-                        if($monthDiff1 < $monthDiff2)
-                        {
-                            $beginDate =  date('Y',strtotime($internship->beginDate)) + 1 . '-' . date('m-d',strtotime($paramBeginDate[0]));
-                            $endDate = date('Y',strtotime($beginDate)) . '-' . date('m-d',strtotime($paramEndDate[0]));
-                        }
-                        else
-                        {
-                            $beginDate =  date('Y',strtotime($internship->beginDate)) + 1 . '-' . date('m-d',strtotime($paramBeginDate[1]));
-                            $endDate = date('Y',strtotime($beginDate)) + 1 . '-' . date('m-d',strtotime($paramEndDate[1]));
-                        }
-                    }
-
-                    // Salary
-                    // Test if internship is from etat de vaud
-                    
-                    $monthBeginDate = date('m',strtotime($internship->beginDate));
-                    if($internship->contracts_id == 4 && $monthBeginDate == date('m',strtotime($paramBeginDate[0])) )
-                    {
-                        // Add upgrade salary for trainee from Etat de Vaud
-                        $salary = $this->getParamByName('internship2Salary')->paramValueInt;
-                    }
-                    elseif($internship->contracts_id == 4 && $monthBeginDate == date('m',strtotime($paramBeginDate[1])))
-                    {
-                        $salary = $this->getParamByName('internship1Salary')->paramValueInt;
-                    }
-                    else
-                    {
-                        // Keep the previous salary
-                        $salary = $internship->grossSalary;
-                    }
-                    // display value on reconmade.blade
-                    array_push($newInternships, $internship);
-
-                    // Insert in dataBase
-                    $insert = [
-                        'companies_id'              => $internship->companies_id,
-                        'beginDate'                 => $beginDate,
-                        'endDate'                   => $endDate,
-                        'responsible_id'            => $internship->responsible_id,
-                        'admin_id'                  => $internship->admin_id,
-                        'intern_id'                 => $id,
-                        'contractstate_id'          => '2',
-                        'previous_id'               => $internship->previous_id,
-                        'internshipDescription'     => $internship->internshipDescription,
-                        'grossSalary'               => $salary,
-                        'contractGenerated'         => null,
-                    ];
-                    DB::table('internships')->insert($insert);
-                }
-            }
-        }
-        
-        return $newInternships;
-
-        
+        $last = Internship::orderBy('id', 'desc')->take($i)->get();
+        $selected = Internship::all()->whereIn('id', $chosen);
+        return view('reconstages.reconmade')->with(compact('selected', 'last'));
     }
 
     //get params by name and show the first
