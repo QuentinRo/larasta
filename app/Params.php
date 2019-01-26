@@ -8,6 +8,10 @@ class Params extends Model
 {
     protected $primaryKey = 'param_id';
     public $timestamps = false;
+    protected $fillable = [
+        'paramValueDate',
+        'paramName',
+    ];
     
     //
     /**
