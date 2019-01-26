@@ -11,6 +11,27 @@
   border: 2px solid darkgrey;
 }
 
+.larastable td,
+.larastable th {
+  padding-right: 5px;
+  padding-left: 5px;
+  text-align: left;
+}
+
+.btn-tile {
+  border: solid 1px #fab;
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  overflow: hidden;
+  background-color: #aaa;
+  text-align: center;
+  cursor: pointer;
+  white-space: normal;
+  font-size: large;
+  font-weight: 200;
+}
+
 #intranet_logo {
   margin-left: 30px;
   float: left;
@@ -23,19 +44,17 @@
   display: block;
 }
 
-#cancel_a
-{
-  border: 1px solid #888888;
-  padding: 3px 8px;
-  border-radius: 10px;
-  cursor: pointer;
-  text-decoration: none;
-  border-color: #46b8da;
-  font-size: 11px;
-
-}
-
 .clickable-row {
   cursor: pointer;
+}
+
+.smallpadding {
+  padding: 4px;
+}
+
+.titlebar {
+  background-color: #1E4F67;
+  color: white;
+  padding: 8px;
 }
 

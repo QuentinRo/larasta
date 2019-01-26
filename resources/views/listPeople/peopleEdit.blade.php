@@ -4,100 +4,114 @@
  * User: Davide
  * Date: 14/01/2018
  * Time: 18:56
+
+ * !!!! IMPORTANT !!!!
+ * ONLY FOR TEACHER ROLE
+ * If you want have all contacts informations for teacher -> do nothing
+ * If you want have nothing information for teacher so go to the STEP by STEP procedure
+ * STEP by STEP: folow the step procedure starting in the Step 1
+ * After finished go to PeopleController and follow the same procedure
  */
 -->
 
 @extends ('layout')
 
 @section ('content')
-    <link rel="stylesheet" href="/css/people.css" />
+    <link rel="stylesheet" href="/css/people.css"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
 
-    <!-- Header -->
+    <!--------------------->
+    <!-- Section Header --->
+    <!--------------------->
 
-    <div id = "people_content">
-
+    <div class="body simple-box text-left" id="view">
         <!-- FirstName and LastName -->
 
         <div id="people_Name" class="row">
             <span>{{ $person->firstname }} {{ $person->lastname }}</span>
-            @if (($person->role == 2) && ($person->obsolete == 0))
-                <span><a href="/listPeople/update/{{ $person->id }}"><button class="btn btn-success" id="people-btn_desactive">Désactiver</button></a></span>
+        @if (($user->getLevel() >= 2))  <!-- View button only for teacher -->
+            <button id="btn-add-section" name="btn-add-section" data-toggle="modal" data-target="#peopleModal" class="btn btn-success people-btn_desactive">Modifier</button>
             @endif
         </div>
 
-        <div class="margin10 row"> </div>
-
-        <div class="row bar30">
-            <h5>Contact</h5>
+        <div class="row">
+            @if (isset($person->companyName))
+                <h5 class="titlebar">Entreprise / Etablissement</h5>
+                <div>{{ $person->companyName }}</div>
+                <form id="frmCompany" method="post" action="/listPeople/changeCompany" class="popupfield">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="peopleid" value="{{ $person->id }}">
+                    <label for="dpdCompany">Changer à </label>
+                    <select id="dpdCompany" name="dpdCompany" value="$person->company_id">
+                        @foreach($companies as $company)
+                            @if($company->id == $person->company_id)
+                                <option value="{{ $company->id }}" selected>{{ $company->companyName }}</option>
+                            @else
+                                <option value="{{ $company->id }}">{{ $company->companyName }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                </form>
+            @endif
         </div>
 
-        <div class="margin10 row"> </div>
+        <h5 class="titlebar">Contact</h5>
 
-        <div id="people_Info" class="row">
+        <div id="people_Info" class="row text-left">
 
-            <!-- Adress -->
-
-            <div>
-                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                @if (isset($adress) || ($adress != null) )
-                    <span>{{ $adress->address1 }} - </span>
+            @if (isset($adress->address1))
+                <div>
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                    <span>{{ $adress->address1 }}</span>
                     @if ($adress->address2 != null)
                         <span>{{ $adress->address2 }} - </span>
                     @endif
                     <span>{{ $adress->postalCode }} - </span>
                     <span>{{ $adress->city }}</span>
+                    <!-- If google maps lat and long is not available do not display link -->
                     @if( ($adress->lat != null) && ($adress->lng != null))
                         <a href="http://maps.google.com/?q={{$adress->lat}},{{$adress->lng}}">[Google Maps]</a>
                     @endif
-                @else
-                    <span>Pas d'addresse</span>
-                @endif
-            </div>
-
-            <!-- Contacts -->
-
-            @foreach($contacts as $contact)
-                <div>
-                    @if($contact->contactTypeDescription == 'Email')
-                        <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-                    @endif
-                    @if($contact->contactTypeDescription == 'Tel Fixe')
-                        <span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span>
-                    @endif
-                    @if($contact->contactTypeDescription == 'Tel Portable')
-                        <span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-                    @endif
-                    <span>{{ $contact->value }}</span>
                 </div>
-            @endforeach
+            @endif
 
-        </div>
+        <!-- Contacts -->
 
-        <div class="margin10 row"> </div>
-
-        <div class="row bar30">
-            <h5>Stages</h5>
-        </div>
-
-        <div class="margin10 row"> </div>
-
-        @foreach($stages as $stage)
-            <div>
-                @if (isset($stage->companyName))
-                    Entreprise: {{ $stage->companyName }}
-                @else
-                    Pas de stage
-                @endif
+            @foreach($contacts as $contact)      <!-- View all contacts for one people -->
+            <div class="glyphicon glyphicon-{{ $contact->icon }} col-md-1 text-right smallpadding"></div>
+            <div class="col-md-3 text-left smallpadding">{{ $contact->value }}</div>
+            <div class="col-md-8 text-left smallpadding">&nbsp;
+                <form method="post" action="/contact/delete" class="popupfield col-md-2">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="peopleid" value="{{ $person->id }}">
+                    <input type="hidden" name="delid" value="{{ $contact->id }}">
+                    <button class="btn-danger" type="submit">Supprimer</button>
+                </form>
             </div>
-        @endforeach
+            <br>
+            @endforeach
+            <form method="post" action="/contact/add" class="col-md-10 text-left popupfield">
+                {{ csrf_field() }}
+                <input type="hidden" name="peopleid" value="{{ $person->id }}">
+                <fieldset>
+                    <input type="text" name="newcontact" id="newcontact"/>
+                    @foreach($contacttypes as $contacttype)
+                        <label for="ctype{{ $contacttype->id }}">{{ $contacttype->contactTypeDescription }}</label>
+                        <input id="ctype{{ $contacttype->id }}" type="radio" name="contacttype" value="{{ $contacttype->id }}">
+                    @endforeach
+                    <button id="cmdAdd" class="btn-primary hidden" type="submit">Ajouter</button>
+                </fieldset>
+            </form>
 
-        <div class="margin30 row"> </div>
-
-        <div class = "row">
-            <a href="/listPeople" id ="btn-return" class="btn btn-success">List Personnes</a>
         </div>
 
-        <div class="margin30 row"> </div>
-
+        <h5 class="titlebar">Stages</h5>
+        <div>
+            @include ('internships.internshipslist',['iships' => $iships])
+        </div>
     </div>
+@stop
+
+@section ('page_specific_js')
+    <script src="/js/people.js"></script>
 @stop

@@ -82,7 +82,6 @@ class ReconStagesController extends Controller
                 $newInternshipDate1 = $internship1Start->subYear($yearToSub)->addYear(Carbon::now()->year);
                 $newInternshipDate2 = $internship1End->subYear($yearToSub)->addYear(Carbon::now()->year);
                 $salary = Params::getParamByName('internship1Salary')->paramValueInt;
-                
             }
             
             /* Create new internship with old value */

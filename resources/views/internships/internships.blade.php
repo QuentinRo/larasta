@@ -1,33 +1,38 @@
 @extends ('layout')
 
+@section('page_specific_css')
+    <link rel="stylesheet" href="/css/internships.css">
+@endsection
+
+@section ('page_specific_js')
+    <script src="/js/internships.js"></script>
+@stop
+
 @section ('content')
-    <div class="simple-box col-md-10 text-left">
+    <div id="collapsedfilters" class="simple-box-collapsed filters"><h4>Filtre...</h4></div>
+    <div id="expandedfilters" class="simple-box filters hidden">
+        <h4 id="collapsefilters">Afficher les stages dans l'état</h4>
         <form name="filterInternships" method="post">
             {{ csrf_field() }}
-            <fieldset>
-                <legend>Dans l'état</legend>
                 @foreach ($filter->getStateFilter() as $state)
-                    <fieldset class="col-md-3">
+                    <span class="onefilter">
+                        <input type="checkbox" id="state{{ $state->id }}" name="state{{ $state->id }}" @if ($state->checked) checked @endif >
                         <label for="state{{ $state->id }}">{{ $state->stateDescription }}</label>
-                        <input class="autosubmit" type="checkbox" id="state{{ $state->id }}" name="state{{ $state->id }}" @if ($state->checked) checked @endif >
-                    </fieldset>
+                    </span>
                 @endforeach
-            </fieldset>
-            <fieldset>
-                <legend> et </legend>
-                <fieldset class="col-md-3">
+                <h4> et </h4>
+                <span class="onefilter">
+                    <input type="checkbox" id="inprogress" name="inprogress" @if ($filter->getInProgress()) checked @endif >
                     <label for="inprogress">En cours</label>
-                    <input class="autosubmit" type="checkbox" id="inprogress" name="inprogress" @if ($filter->getInProgress()) checked @endif >
-                </fieldset>
-                <fieldset class="col-md-3">
-                    <label for="mine">Sous ma responsabilité</label>
-                    <input class="autosubmit" type="checkbox" id="mine" name="mine" @if ($filter->getMine()) checked @endif >
-                </fieldset>
-            </fieldset>
+                </span>
+                <span class="onefilter">
+                    <input type="checkbox" id="mine" name="mine" @if ($filter->getMine()) checked @endif >
+                    <label for="mine">A moi</label>
+                </span>
+            <br>
+            <button type="submit">Ok</button>
         </form>
     </div>
-    <div class="col-md-10">&nbsp;</div>
-    <div class="col-md-10">
-        @include ('internships.internshipslist',['iships' => $iships])
-    </div>
+    <br><br>
+    @include ('internships.internshipslist',['iships' => $iships])
 @stop

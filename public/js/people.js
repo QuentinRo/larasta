@@ -1,9 +1,28 @@
+// Functions for people page
+
 $(document).ready(function(){
-    $("#people_form").on("change", "input:checkbox", function(){
-        $("#people_form").submit();
+    $('.popupfield').addClass('hidden');
+    $('#btn-add-section').click(function() {
+        $('#btn-add-section').addClass('hidden');
+        $('.popupfield').removeClass('hidden');
     });
-    $("#people_inputName").blur(function(){
-        $("#people_form").submit();
+    $('#newcontact').change(function(){
+        validateAdd();
+    });
+    $("input[name='contacttype']").click(function(){
+        validateAdd();
+    });
+    // automatically change company when a choice is made
+    $('#dpdCompany').change(function(){
+        $('#frmCompany').submit();
     });
 });
 
+function validateAdd()
+{
+    // Make sure the submit button is available only with at least plausible info, i.e: something in value field and one radio button checked
+    if ($('#newcontact').val().length > 0 && $("input[name='contacttype']:checked").length > 0)
+        $('#cmdAdd').removeClass('hidden');
+    else
+        $('#cmdAdd').addClass('hidden');
+}
