@@ -11,7 +11,7 @@
 
 
     <title>Larasta</title>
-    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="/css/app.css">
     <link rel="stylesheet" href="/css/minimal.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
@@ -67,7 +67,7 @@
     @yield ('content')
 </div>
 </body>
-<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/jquery/dist/jquery.js"></script>
 <script src="/node_modules/bootstrap/dist/js/bootstrap.js"></script>
 <script src="/node_modules/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="/js/appjs.js"></script>
