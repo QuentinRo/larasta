@@ -2,6 +2,7 @@
 
 @section ('content')
     <h2 class="text-left">Stage de {{ $iship->studentfirstname }} {{ $iship->studentlastname }} chez {{ $iship->companyName }}</h2>
+    <form action="/internships/{{$iship->id}}/update" method="get">
     <table class="table text-left larastable">
         <tr>
             <td class="col-md-2">Du</td>
@@ -13,7 +14,20 @@
         </tr>
         <tr>
             <td class="col-md-2">Description</td>
-            <td>{{ $iship->internshipDescription }}</td>
+            <td>
+                <div id="description">{!! $iship->internshipDescription !!}</div>
+                <script>
+                    BalloonEditor
+                        .create( document.querySelector( '#description' ) )
+                        .then( editor => {
+                            console.log( editor );
+                        } )
+                        .catch( error => {
+                            console.error( error );
+                        } );
+                </script>
+                <textarea style="display: none" name="description" id="txtDescription"></textarea>
+            </td>
         </tr>
         <tr class="clickable-row" data-href="/listPeople/{{ $iship->respid }}/info">
             <td class="col-md-2">Responsable administratif</td>
@@ -41,6 +55,15 @@
             </tr>
         @endif
     </table>
+        <button class="formSend" type="submit" onclick="transferDiv();">Send</button>
+        <script type="text/javascript">
+            function transferDiv(){
+                var divHtml = document.getElementById("description");
+                var txtHtml = document.getElementById("txtDescription");
+                txtHtml.value = divHtml.innerHTML;
+            }
+        </script>
+    </form>
     {{-- Action buttons --}}
     @if(substr($iship->contractGenerated,0,4) == "0000" || $iship->contractGenerated == null)
         <a href="/contract/{{ $iship->id }}">
