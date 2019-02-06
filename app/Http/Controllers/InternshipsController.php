@@ -192,6 +192,41 @@ class InternshipsController extends Controller
         return $res;
     }
 
+    public function view($iid)
+    {
+        $iship = DB::table('internships')
+            ->join('companies', 'companies_id', '=', 'companies.id')
+            ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
+            ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
+            ->join('persons as student', 'intern_id', '=', 'student.id')
+            ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
+            ->join('flocks', 'student.flock_id', '=', 'flocks.id')
+            ->join('persons as mc', 'flocks.classMaster_id', '=', 'mc.id')
+            ->select(
+                'internships.id',
+                'beginDate',
+                'endDate',
+                'companyName',
+                'grossSalary',
+                'mc.initials',
+                'previous_id',
+                'internshipDescription',
+                'admresp.firstname as arespfirstname',
+                'admresp.lastname as aresplastname',
+                'admresp.id as respid',
+                'intresp.firstname as irespfirstname',
+                'intresp.lastname as iresplastname',
+                'student.firstname as studentfirstname',
+                'student.lastname as studentlastname',
+                'contractstate_id',
+                'contractGenerated',
+                'stateDescription')
+            ->where('internships.id', '=', $iid)
+            ->first();
+
+        return view('internships/internshipview')->with('iship', $iship);
+    }
+
     public function edit($iid)
     {
         $iship = DB::table('internships')
@@ -224,7 +259,7 @@ class InternshipsController extends Controller
             ->where('internships.id', '=', $iid)
             ->first();
 
-        return view('internships/internship')->with('iship', $iship);
+        return view('internships/internshipedit')->with('iship', $iship);
     }
 
     public function update($iid)
@@ -234,7 +269,7 @@ class InternshipsController extends Controller
             ->update(['internshipDescription' => $_GET['description']]);
 
         return redirect()->action(
-            'InternshipsController@edit', ['iid' => $iid]
+            'InternshipsController@view', ['iid' => $iid]
         );
     }
 }

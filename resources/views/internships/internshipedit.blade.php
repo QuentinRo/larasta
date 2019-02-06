@@ -55,7 +55,21 @@
             </tr>
         @endif
     </table>
-        <button class="formSend" type="submit" onclick="transferDiv();">Send</button>
+    {{-- Action buttons --}}
+        <a href="/internships/{{$iship->id}}/view">
+            <button class="btn btn-danger" type="button">Annuler</button>
+        </a>
+    @if(substr($iship->contractGenerated,0,4) == "0000" || $iship->contractGenerated == null)
+        <a href="/contract/{{ $iship->id }}">
+            <button class="btn btn-primary" type="button">Générer le contrat</button>
+        </a>
+    @else
+        <br> Contrat généré le : {{$iship->contractGenerated}}<br>
+        <a href="/contract/{{$iship->id}}/cancel">
+            <button class="btn btn-danger" type="button">Réinitialiser</button>
+        </a>
+    @endif
+        <button class="formSend btn btn-warning" type="submit" onclick="transferDiv();">Modifier</button>
         <script type="text/javascript">
             function transferDiv(){
                 var divHtml = document.getElementById("description");
@@ -64,15 +78,4 @@
             }
         </script>
     </form>
-    {{-- Action buttons --}}
-    @if(substr($iship->contractGenerated,0,4) == "0000" || $iship->contractGenerated == null)
-        <a href="/contract/{{ $iship->id }}">
-            <button class="btn btn-primary">Générer le contrat</button>
-        </a>
-    @else
-        <br> Contrat généré le : {{$iship->contractGenerated}}<br>
-        <a href="/contract/{{$iship->id}}/cancel">
-            <button class="btn btn-danger">Réinitialiser</button>
-        </a>
-    @endif
 @stop
