@@ -226,4 +226,15 @@ class InternshipsController extends Controller
 
         return view('internships/internship')->with('iship', $iship);
     }
+
+    public function update($iid)
+    {
+        DB::table('internships')
+            ->where('id', '=', $iid)
+            ->update(['internshipDescription' => $_GET['description']]);
+
+        return redirect()->action(
+            'InternshipsController@edit', ['iid' => $iid]
+        );
+    }
 }

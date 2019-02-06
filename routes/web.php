@@ -17,6 +17,8 @@ Route::post('/', 'InternshipsController@changeFilter');
 
 Route::get('/internships/{iid}/edit','InternshipsController@edit');
 
+Route::get('/internships/{iid}/update','InternshipsController@update');
+
 Route::get('/admin', 'AdminController@index');
 
 Route::get('/about', function () {
