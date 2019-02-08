@@ -218,7 +218,6 @@ class InternshipsController extends Controller
                 'intresp.lastname as iresplastname',
                 'student.firstname as studentfirstname',
                 'student.lastname as studentlastname',
-                'contractstate_id',
                 'contractGenerated',
                 'stateDescription')
             ->where('internships.id', '=', $iid)
@@ -248,9 +247,10 @@ class InternshipsController extends Controller
                 'internshipDescription',
                 'admresp.firstname as arespfirstname',
                 'admresp.lastname as aresplastname',
-                'admresp.id as respid',
+                'admresp.id as arespid',
                 'intresp.firstname as irespfirstname',
                 'intresp.lastname as iresplastname',
+                'intresp.id as intrespid',
                 'student.firstname as studentfirstname',
                 'student.lastname as studentlastname',
                 'contractstate_id',
@@ -259,14 +259,37 @@ class InternshipsController extends Controller
             ->where('internships.id', '=', $iid)
             ->first();
 
-        return view('internships/internshipedit')->with('iship', $iship);
+        $resp = DB::table('persons')
+            ->select(
+                'id',
+                'firstname',
+                'lastname')
+            ->where('role', '=', 2);
+
+        $states = DB::table('contractstates')
+            ->select(
+                'id',
+                'stateDescription as state');
+
+        return view('internships/internshipedit')
+            ->with('iship', $iship)
+            ->with('resp', $resp)
+            ->with('states', $states);
     }
 
     public function update($iid)
     {
         DB::table('internships')
             ->where('id', '=', $iid)
-            ->update(['internshipDescription' => $_GET['description']]);
+            ->update(
+                ['beginDate' => $_GET['beginDate'],
+                'endDate' => $_GET['endDate'],
+                'internshipDescription' => $_GET['description'],
+                'admin_id' => $_GET['aresp'],
+                'responsible_id' => $_GET['intresp'],
+                'contractstate_id' => $_GET['stateDescription'],
+                'grossSalary' => $_GET['grossSalary']]
+            );
 
         return redirect()->action(
             'InternshipsController@view', ['iid' => $iid]
