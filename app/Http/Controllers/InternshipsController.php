@@ -213,9 +213,10 @@ class InternshipsController extends Controller
                 'internshipDescription',
                 'admresp.firstname as arespfirstname',
                 'admresp.lastname as aresplastname',
-                'admresp.id as respid',
+                'admresp.id as arespid',
                 'intresp.firstname as irespfirstname',
                 'intresp.lastname as iresplastname',
+                'intresp.id as intrespid',
                 'student.firstname as studentfirstname',
                 'student.lastname as studentlastname',
                 'contractGenerated',
@@ -240,6 +241,7 @@ class InternshipsController extends Controller
                 'internships.id',
                 'beginDate',
                 'endDate',
+                'companies_id as compid',
                 'companyName',
                 'grossSalary',
                 'mc.initials',
@@ -264,12 +266,14 @@ class InternshipsController extends Controller
                 'id',
                 'firstname',
                 'lastname')
-            ->where('role', '=', 2);
+            ->where('role', '=', 2)
+            ->where('company_id', '=', $iship->compid);
 
         $states = DB::table('contractstates')
             ->select(
                 'id',
-                'stateDescription as state');
+                'stateDescription as state')
+            ->where('details', '!=', "(obsolet)");
 
         return view('internships/internshipedit')
             ->with('iship', $iship)

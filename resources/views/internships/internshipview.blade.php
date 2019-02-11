@@ -17,11 +17,11 @@
                 <div id="description">{!! $iship->internshipDescription !!}</div>
             </td>
         </tr>
-        <tr class="clickable-row" data-href="/listPeople/{{ $iship->respid }}/info">
+        <tr class="clickable-row" data-href="/listPeople/{{ $iship->arespid }}/info">
             <td class="col-md-2">Responsable administratif</td>
             <td>{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</td>
         </tr>
-        <tr>
+        <tr class="clickable-row" data-href="/listPeople/{{ $iship->intrespid }}/info">
             <td class="col-md-2">Responsable</td>
             <td>{{ $iship->irespfirstname }} {{ $iship->iresplastname }}</td>
         </tr>
