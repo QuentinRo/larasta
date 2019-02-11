@@ -192,7 +192,7 @@ class InternshipsController extends Controller
         return $res;
     }
 
-    public function edit($iid)
+    public function view($iid)
     {
         $iship = DB::table('internships')
             ->join('companies', 'companies_id', '=', 'companies.id')
@@ -213,9 +213,46 @@ class InternshipsController extends Controller
                 'internshipDescription',
                 'admresp.firstname as arespfirstname',
                 'admresp.lastname as aresplastname',
-                'admresp.id as respid',
+                'admresp.id as arespid',
                 'intresp.firstname as irespfirstname',
                 'intresp.lastname as iresplastname',
+                'intresp.id as intrespid',
+                'student.firstname as studentfirstname',
+                'student.lastname as studentlastname',
+                'contractGenerated',
+                'stateDescription')
+            ->where('internships.id', '=', $iid)
+            ->first();
+
+        return view('internships/internshipview')->with('iship', $iship);
+    }
+
+    public function edit($iid)
+    {
+        $iship = DB::table('internships')
+            ->join('companies', 'companies_id', '=', 'companies.id')
+            ->join('persons as admresp', 'admin_id', '=', 'admresp.id')
+            ->join('persons as intresp', 'responsible_id', '=', 'intresp.id')
+            ->join('persons as student', 'intern_id', '=', 'student.id')
+            ->join('contractstates', 'contractstate_id', '=', 'contractstates.id')
+            ->join('flocks', 'student.flock_id', '=', 'flocks.id')
+            ->join('persons as mc', 'flocks.classMaster_id', '=', 'mc.id')
+            ->select(
+                'internships.id',
+                'beginDate',
+                'endDate',
+                'companies_id as compid',
+                'companyName',
+                'grossSalary',
+                'mc.initials',
+                'previous_id',
+                'internshipDescription',
+                'admresp.firstname as arespfirstname',
+                'admresp.lastname as aresplastname',
+                'admresp.id as arespid',
+                'intresp.firstname as irespfirstname',
+                'intresp.lastname as iresplastname',
+                'intresp.id as intrespid',
                 'student.firstname as studentfirstname',
                 'student.lastname as studentlastname',
                 'contractstate_id',
@@ -224,17 +261,42 @@ class InternshipsController extends Controller
             ->where('internships.id', '=', $iid)
             ->first();
 
-        return view('internships/internship')->with('iship', $iship);
+        $resp = DB::table('persons')
+            ->select(
+                'id',
+                'firstname',
+                'lastname')
+            ->where('role', '=', 2)
+            ->where('company_id', '=', $iship->compid);
+
+        $states = DB::table('contractstates')
+            ->select(
+                'id',
+                'stateDescription as state')
+            ->where('details', '!=', "(obsolet)");
+
+        return view('internships/internshipedit')
+            ->with('iship', $iship)
+            ->with('resp', $resp)
+            ->with('states', $states);
     }
 
     public function update($iid)
     {
         DB::table('internships')
             ->where('id', '=', $iid)
-            ->update(['internshipDescription' => $_GET['description']]);
+            ->update(
+                ['beginDate' => $_GET['beginDate'],
+                'endDate' => $_GET['endDate'],
+                'internshipDescription' => $_GET['description'],
+                'admin_id' => $_GET['aresp'],
+                'responsible_id' => $_GET['intresp'],
+                'contractstate_id' => $_GET['stateDescription'],
+                'grossSalary' => $_GET['grossSalary']]
+            );
 
         return redirect()->action(
-            'InternshipsController@edit', ['iid' => $iid]
+            'InternshipsController@view', ['iid' => $iid]
         );
     }
 }

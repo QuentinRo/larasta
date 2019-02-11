@@ -6,11 +6,15 @@
     <table class="table text-left larastable">
         <tr>
             <td class="col-md-2">Du</td>
-            <td>{{ strftime("%e %b %g", strtotime($iship->beginDate)) }}</td>
+            <td>
+                <input type="date" name="beginDate" value="{{ strftime("%G-%m-%d", strtotime($iship->beginDate)) }}"/>
+            </td>
         </tr>
         <tr>
             <td class="col-md-2">Au</td>
-            <td>{{ strftime("%e %b %g", strtotime($iship->endDate)) }}</td>
+            <td>
+                <input type="date" name="endDate" value="{{ strftime("%G-%m-%d", strtotime($iship->endDate)) }}"/>
+            </td>
         </tr>
         <tr>
             <td class="col-md-2">Description</td>
@@ -29,13 +33,25 @@
                 <textarea style="display: none" name="description" id="txtDescription"></textarea>
             </td>
         </tr>
-        <tr class="clickable-row" data-href="/listPeople/{{ $iship->respid }}/info">
+        <tr>
             <td class="col-md-2">Responsable administratif</td>
-            <td>{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</td>
+            <td>
+                <select name="aresp">
+                    @foreach($resp->get()->toArray() as $value)
+                        <option value="{{ $value->id }}" @if ($iship->arespid == $value->id) selected @endif>{{$value->firstname}} {{$value->lastname}}</option>
+                    @endforeach
+                </select>
+            </td>
         </tr>
         <tr>
             <td class="col-md-2">Responsable</td>
-            <td>{{ $iship->irespfirstname }} {{ $iship->iresplastname }}</td>
+            <td>
+                <select name="intresp">
+                    @foreach($resp->get()->toArray() as $value)
+                        <option value="{{ $value->id }}" @if ($iship->intrespid == $value->id) selected @endif>{{$value->firstname}} {{$value->lastname}}</option>
+                    @endforeach
+                </select>
+            </td>
         </tr>
         <tr>
             <td class="col-md-2">Maître de classe</td>
@@ -43,11 +59,17 @@
         </tr>
         <tr>
             <td class="col-md-2">Etat</td>
-            <td>{{ $iship->stateDescription }}</td>
+            <td>
+                <select name="stateDescription">
+                    @foreach($states->get()->toArray() as $value)
+                        <option value="{{ $value->id }}" @if ($iship->contractstate_id == $value->id) selected @endif>{{ $value->state }}</option>
+                    @endforeach
+                </select>
+            </td>
         </tr>
         <tr>
             <td class="col-md-2">Salaire</td>
-            <td>{{ $iship->grossSalary }}</td>
+            <td><input type="number" name="grossSalary" value="{{$iship->grossSalary}}"/></td>
         </tr>
         @if (isset($iship->previous_id))
             <tr>
@@ -55,7 +77,11 @@
             </tr>
         @endif
     </table>
-        <button class="formSend" type="submit" onclick="transferDiv();">Send</button>
+    {{-- Action buttons --}}
+        <a href="/internships/{{$iship->id}}/view">
+            <button class="btn btn-danger" type="button">Annuler les modifications</button>
+        </a>
+        <button class="formSend btn btn-warning" type="submit" onclick="transferDiv();">Valider les modifications</button>
         <script type="text/javascript">
             function transferDiv(){
                 var divHtml = document.getElementById("description");
@@ -64,15 +90,4 @@
             }
         </script>
     </form>
-    {{-- Action buttons --}}
-    @if(substr($iship->contractGenerated,0,4) == "0000" || $iship->contractGenerated == null)
-        <a href="/contract/{{ $iship->id }}">
-            <button class="btn btn-primary">Générer le contrat</button>
-        </a>
-    @else
-        <br> Contrat généré le : {{$iship->contractGenerated}}<br>
-        <a href="/contract/{{$iship->id}}/cancel">
-            <button class="btn btn-danger">Réinitialiser</button>
-        </a>
-    @endif
 @stop

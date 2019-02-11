@@ -15,7 +15,7 @@
         </thead>
         <tbody>
         @foreach($iships as $iship)
-            <tr class="clickable-row" data-href="/internships/{{ $iship->id }}/edit">
+            <tr class="clickable-row" data-href="/internships/{{ $iship->id }}/view">
                 <td>{{ $iship->companyName }}</td>
                 <td>{{ strftime("%b %g", strtotime($iship->beginDate)) }}</td>
                 <td>{{ $iship->arespfirstname }} {{ $iship->aresplastname }}</td>
